@@ -1,0 +1,2 @@
+flowstream_mode   : env
+flowstream_file   : /flowstream/database.json
