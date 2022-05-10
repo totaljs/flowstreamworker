@@ -8,6 +8,7 @@ FUNC.init = function(env, flow, variables) {
 	flow.env = env || 'dev';
 
 	MODULE('flowstream').init(flow, false, function(err, instance) {
+
 		instance.httprouting();
 		instance.onerror = function(err, source, id, component) {
 			var empty = '---';
@@ -49,6 +50,14 @@ ON('ready', function() {
 			}
 		}
 
-		flow && FUNC.init(CONF.flowstream_mode, flow);
+		flow && PATH.fs.readFile(PATH.root('variables.json'), function(err, response) {
+			var variables = null;
+			try {
+				if (response)
+					variables = JSON.parse(response.toString('utf8'));
+			} catch (e) {}
+			FUNC.init(CONF.flowstream_mode, flow, variables || {});
+		});
+
 	});
 });
