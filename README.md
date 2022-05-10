@@ -6,7 +6,7 @@
 - [Join __Total.js Telegram__](https://t.me/totalplatform)
 - [Support](https://www.totaljs.com/support/)
 
-This app provides exported FlowStream from th Total.js Flow without UI and without nested worker. This app can be provided in the cluster.
+This app provides exported FlowStream from the Total.js Flow without UI and without nested worker, and the app can be provided in the cluster.
 
 __How to run it?__
 
