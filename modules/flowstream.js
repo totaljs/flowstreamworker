@@ -7,7 +7,7 @@ if (!global.F)
 
 const W = require('worker_threads');
 const Fork = require('child_process').fork;
-const VERSION = 22;
+const VERSION = 24;
 
 var isFLOWSTREAMWORKER = false;
 var Parent = W.parentPort;
@@ -625,6 +625,8 @@ exports.refresh = function(id, type) {
 	}
 };
 
+exports.version = VERSION;
+
 function exec(self, opt) {
 
 	var target = [];
@@ -1093,7 +1095,12 @@ function init_current(meta, callback) {
 
 function init_worker(meta, type, callback) {
 
-	var worker = type === true || type === 'worker' ? new W.Worker(__filename, { workerData: meta }) : Fork(__filename, [F.directory, '--fork'], { serialization: 'json' }); // detached: true,
+	var forkargs = [F.directory, '--fork'];
+
+	if (meta.memory)
+		forkargs.push('--max-old-space-size=' + meta.memory);
+
+	var worker = type === true || type === 'worker' ? (new W.Worker(__filename, { workerData: meta })) : Fork(__filename, forkargs, { serialization: 'json' });
 	var ischild = false;
 
 	meta.unixsocket = F.isWindows ? ('\\\\?\\pipe\\flowstream' + F.directory.makeid() + meta.id + Date.now().toString(36)) : (F.Path.join(F.OS.tmpdir(), 'flowstream_' + F.directory.makeid() + '_' + meta.id + '_' + Date.now().toString(36) + '.socket'));
@@ -1946,12 +1953,7 @@ function MAKEFLOWSTREAM(meta) {
 		// Each 9 seconds
 		if (notifier % 3 === 0) {
 			notifier = 0;
-			if (Parent) {
-				var msg = { TYPE: 'stream/stats', data: { paused: flow.paused, messages: flow.stats.messages, pending: flow.stats.pending, memory: flow.stats.memory, minutes: flow.stats.minutes, errors: flow.stats.errors, mm: flow.stats.mm }};
-				if (F.consumption)
-					msg.usage = F.consumption.usage;
-				Parent.postMessage(msg);
-			}
+			Parent && Parent.postMessage({ TYPE: 'stream/stats', data: { paused: flow.paused, messages: flow.stats.messages, pending: flow.stats.pending, memory: flow.stats.memory, minutes: flow.stats.minutes, errors: flow.stats.errors, mm: flow.stats.mm }});
 		}
 
 		notifier++;
