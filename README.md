@@ -2,7 +2,6 @@
 
 - [Website](https://www.totaljs.com/flow/)
 - [__Documentation__](https://docs.totaljs.com/total4/5aed1001bj51c/)
-- [Chat support](https://platform.totaljs.com/?open=messenger)
 - [Join __Total.js Telegram__](https://t.me/totalplatform)
 - [Support](https://www.totaljs.com/support/)
 
@@ -12,8 +11,8 @@ __How to run it?__
 
 ```bash
 $ cd flowstreamworker
-$ npm install total4
-$ node index.js
+$ npm install
+$ npm start
 ```
 
 - open web browser `http:/127.0.0.1:8000`
