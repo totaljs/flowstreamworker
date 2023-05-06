@@ -1,16 +1,37 @@
+const PING = { TYPE: 'ping' };
+
 PATH.mkdir(PATH.private());
 
-FUNC.init = function(env, flow, variables) {
+var FS = {};
 
-	flow.variables2 = variables || {};
-	flow.directory = CONF.directory || PATH.root('/flowstream/');
-	flow.sandbox = false;
-	flow.env = env || 'dev';
+FS.version = 1;
+FS.db = {};
+FS.instances = {};
 
-	MODULE('flowstream').init(flow, false, function(err, instance) {
+FS.init = function(flow, variables, next) {
+
+	flow.variables2 = variables;
+	flow.directory = PATH.root(F.Path.dirname(CONF.flowstream_file));
+	flow.sandbox = CONF.flowstream_sandbox == true;
+	flow.env = CONF.env || 'dev';
+
+	if (!flow.memory)
+		flow.memory = CONF.flowstream_memory || 0;
+
+	MODULE('flowstream').init(flow, CONF.flowstream_worker, function(err, instance) {
+
+		if (CONF.flowstream_worker && flow.proxypath) {
+
+			// Removes old
+			PROXY(flow.proxypath, null);
+
+			// Registers new
+			PROXY(flow.proxypath, flow.unixsocket, false);
+		}
 
 		instance.httprouting();
-		instance.onerror = function(err, source, id, component) {
+		instance.ondone = () => next();
+		instance.onerror = function(err, source, id, component, stack) {
 			var empty = '---';
 			var output = '';
 			output += '|------------- FlowError: ' + new Date().format('yyyy-MM-dd HH:mm:ss') + '\n';
@@ -18,7 +39,9 @@ FUNC.init = function(env, flow, variables) {
 			output += '| Name: ' + flow.name + '\n';
 			output += '| Source: ' + (source || empty) + '\n';
 			output += '| Instance ID: ' + (id || empty) + '\n';
-			output += '| Component ID: ' + (component || empty);
+			output += '| Component ID: ' + (component || empty) + '\n';
+			output += '|---- Stack: ----\n';
+			output += stack;
 			console.error(output);
 			var meta = {};
 			meta.error = err;
@@ -28,36 +51,54 @@ FUNC.init = function(env, flow, variables) {
 			EMIT('flowstream_error', meta);
 		};
 
-		instance.onsave = NOOP;
-		instance.ondone = NOOP;
+		FS.instances[flow.id] = instance;
 	});
 };
 
-ON('ready', function() {
-	var path = CONF.flowstream_file[0] === '~' ? CONF.flowstream_file.substring(1) : PATH.root(CONF.flowstream_file);
-	PATH.fs.readFile(path, function(err, data) {
+FUNC.restart = function() {
 
-		if (err) {
-			console.log(err);
-			return;
-		}
+	var is = false;
 
-		var flow = data.toString('utf8').parseJSON(true);
-		if (flow && !flow.components) {
-			for (var key in flow) {
-				flow = flow[key];
-				break;
-			}
-		}
+	for (var key in FS.instances) {
+		var instance = FS.instances[key];
+		instance.destroy();
+		is = true;
+	}
 
-		flow && PATH.fs.readFile(PATH.root('variables.json'), function(err, response) {
-			var variables = null;
-			try {
-				if (response)
-					variables = JSON.parse(response.toString('utf8'));
-			} catch (e) {}
-			FUNC.init(CONF.flowstream_mode, flow, variables || {});
+	setTimeout(load, is ? 1000 : 100);
+
+};
+
+function load() {
+	PATH.fs.readFile(PATH.root(CONF.flowstream_file), function(err, data) {
+
+		var db = data.toString('utf8').parseJSON(true);
+		var variables = FS.db.variables || {};
+
+		Object.keys(db).wait(function(key, next) {
+			if (key === 'variables')
+				next();
+			else
+				FS.init(db[key], variables, next);
 		});
 
 	});
+}
+
+ON('ready', function() {
+
+	load();
+
+	// A simple prevetion for the Flow zombie processes
+	CONF.flowstream_worker && setInterval(function() {
+		// ping all services
+		for (var key in FS.instances) {
+			var fs = FS.instances[key];
+			if (fs.isworkerthread && fs.flow && fs.flow.postMessage2)
+				fs.flow.postMessage2(PING);
+		}
+	}, 5000);
+
 });
+
+MAIN.flowstream = FS;

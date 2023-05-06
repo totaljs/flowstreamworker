@@ -1,2 +1,3 @@
-flowstream_mode   : env
-flowstream_file   : /flowstream/database.json
+flowstream_worker  : fork
+flowstream_mode    : env
+flowstream_file    : /flowstream/database.json

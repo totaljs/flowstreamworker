@@ -1,121 +1,87 @@
 {
-    "paused": false,
-    "id": "fpkhz001sc41d",
-    "reference": "",
-    "author": "",
-    "group": "",
-    "icon": "fas fa-microchip",
-    "color": "",
-    "version": "",
-    "readme": "",
-    "url": "https://",
-    "name": "Simple REST Endpoint",
-    "components": {
-        "ckg5qd4c5b": "<script total>\n\n\texports.name = 'Route';\n\texports.group = 'REST API';\n\texports.icon = 'fa fa-road';\n\texports.version = '1';\n\texports.author = 'Total.js';\n\texports.config = { url: '/', method: 'GET', timeout: 5000, limit: 5120, upload: false, send: 'all' };\n\texports.outputs = [{ id: 'output', name: 'Output' }];\n\n\texports.make = function(instance, config) {\n\n\t\tvar prev = null;\n\n\t\tinstance.configure = function() {\n\n\t\t\tif (prev) {\n\t\t\t\tprev && prev.remove();\n\t\t\t\tprev = null;\n\t\t\t}\n\n\t\t\tif (config.url && config.method) {\n\n\t\t\t\tvar flags = [config.timeout];\n\n\t\t\t\tconfig.upload && flags.push('upload');\n\t\t\t\tprev = ROUTE(config.method + ' ' + config.url, function() {\n\n\t\t\t\t\tvar ctrl = this;\n\t\t\t\t\tvar msg = instance.newmessage();\n\t\t\t\t\tvar data;\n\n\t\t\t\t\tswitch (config.send) {\n\t\t\t\t\t\tcase 'payload':\n\t\t\t\t\t\t\tdata = ctrl.body;\n\t\t\t\t\t\t\tbreak;\n\t\t\t\t\t\tcase 'query':\n\t\t\t\t\t\t\tdata = ctrl.query;\n\t\t\t\t\t\t\tbreak;\n\t\t\t\t\t\tcase 'files':\n\t\t\t\t\t\t\tdata = ctrl.files;\n\t\t\t\t\t\t\tbreak;\n\t\t\t\t\t\tcase 'params':\n\t\t\t\t\t\t\tdata = ctrl.params;\n\t\t\t\t\t\t\tbreak;\n\t\t\t\t\t\tcase 'headers':\n\t\t\t\t\t\t\tdata = ctrl.headers;\n\t\t\t\t\t\t\tbreak;\n\t\t\t\t\t\tdefault:\n\t\t\t\t\t\t\tdata = { payload: ctrl.body, query: ctrl.query, files: ctrl.files, user: ctrl.user, url: ctrl.url, headers: ctrl.headers, params: ctrl.params, ip: ctrl.ip };\n\t\t\t\t\t\t\tbreak;\n\t\t\t\t\t}\n\n\t\t\t\t\tmsg.refs.controller = ctrl;\n\t\t\t\t\tmsg.send('output', data);\n\t\t\t\t}, flags, config.limit);\n\t\t\t}\n\t\t};\n\n\t\tinstance.configure();\n\t};\n\n</script>\n\n<readme>\nThis component registers an HTTP Route and sends request data next. It stores `controller` instance in the `message.refs.controller` property. You must respond to the REST response component.\n\n< __IMPORTANT__:<br>The component works only with a defined Proxy endpoint in the Flow settings.\n\n__Output data__:\n\n```js\n{\n\t\"route\": String,\n\t\"params\": Object,\n\t\"query\": Object,\n\t\"body\": Object,\n\t\"files\": Array,\n\t\"headers\": Object,\n\t\"url\": String,\n\t\"ip\": String\n}\n```\n</readme>\n\n<settings>\n\t<div class=\"padding\">\n\t\t<div class=\"row\">\n\t\t\t<div class=\"col-md-3 m\">\n\t\t\t\t<div data---=\"input__?.method__required:1;dirsource:GET|GET,POST|POST,PUT|PUT,PATCH|PATCH,DELETE|DELETE\">Method</div>\n\t\t\t</div>\n\t\t\t<div class=\"col-md-9 m\">\n\t\t\t\t<div data---=\"input__?.url__required:1\">Relative URL address</div>\n\t\t\t\t<div class=\"help\">Relative path to: <span data-bind=\"flow.head.proxyurl__text\"></span></div>\n\t\t\t</div>\n\t\t</div>\n\t\t<div class=\"row\">\n\t\t\t<div class=\"col-md-3 m\">\n\t\t\t\t<div data---=\"input__?.timeout__required:1;type:number\">Timeout</div>\n\t\t\t</div>\n\t\t\t<div class=\"col-md-3 m\">\n\t\t\t\t<div data---=\"input__?.limit__required:1;type:number;ricon:!kB;align:1\">Request limit</div>\n\t\t\t</div>\n\t\t\t<div class=\"col-md-3 m\">\n\t\t\t\t<div data---=\"input__?.send__required:1;dirsource:all|Everything,payload|Payload,query|Query arguments,files|Files,params|Dynamic params,headers|Headers\">Send to output</div>\n\t\t\t</div>\n\t\t</div>\n\t</div>\n</settings>\n\n<style>\n\t.CLASS footer { padding: 10px; }\n\t.CLASS footer span { font-family: var(--monospace); }\n\t.CLASS footer .method { background-color: var(--color); color: #FFF; padding: 2px 3px; border-radius: var(--radius); }\n</style>\n\n<body>\n\t<header>\n\t\t<i class=\"ICON\"></i>NAME\n\t</header>\n\t<footer data-bind=\"CONFIG.method__show\" class=\"hidden\">\n\t\t<div><span data-bind=\"CONFIG.method__text\" class=\"method\"></span> <a data-bind=\"CONFIG.url__text__href:flow.head.proxyurl + value.substring(1)\" target=\"_blank\"></a></div>\n\t</footer>\n</body>",
-        "ckgtz87cdf": "<script total>\n\n\texports.name = 'Response';\n\texports.group = 'REST API';\n\texports.icon = 'fa fa-retweet';\n\texports.version = '1';\n\texports.author = 'Total.js';\n\texports.config = { type: 'json', code: 200 };\n\texports.inputs = [{ id: 'input', name: 'Response' }];\n\n\texports.make = function(instance, config) {\n\t\tinstance.message = function($) {\n\t\t\tvar ctrl = $.refs.controller;\n\t\t\tif (ctrl) {\n\t\t\t\tctrl.status = config.code;\n\t\t\t\tswitch (config.type) {\n\t\t\t\t\tcase 'json':\n\t\t\t\t\t\tctrl.json($.data);\n\t\t\t\t\t\tbreak;\n\t\t\t\t\tcase 'success':\n\t\t\t\t\t\tctrl.success();\n\t\t\t\t\t\tbreak;\n\t\t\t\t\tcase 'empty':\n\t\t\t\t\tdefault:\n\t\t\t\t\t\tctrl.empty();\n\t\t\t\t\t\tbreak;\n\t\t\t\t}\n\t\t\t}\n\t\t\t$.destroy();\n\t\t};\n\t};\n\n</script>\n\n<readme>\nThis component can respond on the REST Route component.\n</readme>\n\n<settings>\n\t<div class=\"padding\">\n\t\t<div class=\"row\">\n\t\t\t<div class=\"col-md-3 m\">\n\t\t\t\t<div data---=\"input__?.type__required:1;dirsource:json|JSON,success|Success,empty|Empty response\">Type</div>\n\t\t\t</div>\n\t\t\t<div class=\"col-md-3 m\">\n\t\t\t\t<div data---=\"input__?.code__required:1;type:number\">Status code</div>\n\t\t\t</div>\n\t\t</div>\n\t</div>\n</settings>\n\n<style>\n\t.CLASS footer { padding: 10px; }\n\t.CLASS footer span { font-family: var(--monospace); }\n\t.CLASS footer .code { color: #FFF; padding: 2px 3px; border-radius: var(--radius); }\n</style>\n\n<body>\n\t<header>\n\t\t<i class=\"ICON\"></i>NAME\n\t</header>\n\t<footer>\n\t\t<span data-bind=\"CONFIG.code__text__exec:el.css('background-color', value >= 400 ? '#E73323' : '#4285F4')\" class=\"code\"></span> <span data-bind=\"CONFIG.type__text\"></span>\n\t</footer>\n</body>",
-        "ckiqc0267": "<script total>\n\n\texports.name = 'Workflow';\n\texports.group = 'REST API';\n\texports.version = '1';\n\texports.icon = 'fa fa-code';\n\texports.author = 'Total.js';\n\texports.config = { name: 'Name', code: 'success();', clear: false };\n\texports.inputs = [{ id: 'input', name: 'Input' }];\n\texports.outputs = [{ id: 'output', name: 'Output' }, { id: 'error', name: 'Error' }];\n\texports.meta = { settingswidth: 1400 };\n\n\texports.make = function(instance, config) {\n\n\t\tvar repo = {};\n\t\tvar fn;\n\n\t\tinstance.message = function($) {\n\t\t\tif (fn) {\n\t\t\t\ttry {\n\t\t\t\t\tfn($, repo);\n\t\t\t\t} catch (e) {\n\t\t\t\t\t$.destroy();\n\t\t\t\t\t$.throw(e);\n\t\t\t\t}\n\t\t\t} else\n\t\t\t\t$.send('error', 'Not configured');\n\t\t};\n\n\t\tinstance.configure = function() {\n\t\t\ttry {\n\t\t\t\tvar code = config.code;\n\t\t\t\tif (code) {\n\n\t\t\t\t\tvar builder = ['var controller=$.refs.controller||EMPTYOBJECT'];\n\n\t\t\t\t\tif (code.indexOf('headers') !== -1)\n\t\t\t\t\t\tbuilder.push('headers=controller.headers||EMPTYOBJECT');\n\n\t\t\t\t\tif (code.indexOf('params') !== -1)\n\t\t\t\t\t\tbuilder.push('params=controller.params||EMPTYOBJECT');\n\n\t\t\t\t\tif (code.indexOf('query') !== -1)\n\t\t\t\t\t\tbuilder.push('query=controller.query||EMPTYOBJECT');\n\n\t\t\t\t\tif (code.indexOf('respond') !== -1)\n\t\t\t\t\t\tbuilder.push('respond=(data)=>$.send(\\'output\\',data)');\n\n\t\t\t\t\tif (code.indexOf('success') !== -1)\n\t\t\t\t\t\tbuilder.push('success=(data)=>$.send(\\'output\\',{success:true,value:data})');\n\n\t\t\t\t\tif (code.indexOf('done') !== -1)\n\t\t\t\t\t\tbuilder.push('done=function(is){return function(err,response){if(err){$.send(\\'error\\',[{error:err.toString()}])}else{$.send(\\'output\\',{success:true,value:is==true?response:is})}}}');\n\n\t\t\t\t\tif (code.indexOf('invalid') !== -1)\n\t\t\t\t\t\tbuilder.push('invalid=(err)=>$.send(\\'error\\',[{error:err.toString()}])');\n\n\t\t\t\t\tif (code.indexOf('user') !== -1)\n\t\t\t\t\t\tbuilder.push('user=controller.user');\n\n\t\t\t\t\tif (code.indexOf('ip') !== -1)\n\t\t\t\t\t\tbuilder.push('ip=controller.ip||\\'\\'');\n\n\t\t\t\t\tif (code.indexOf('model') !== -1)\n\t\t\t\t\t\tbuilder.push('model=$.data');\n\n\t\t\t\t\tvar AsyncFunction = Object.getPrototypeOf(async function(){}).constructor;\n\t\t\t\t\tvar body = builder.join(',') + ';try{\\n' + code + '\\n}catch(e){$.instance.status({error:e.message});$.destroy();}';\n\n\t\t\t\t\tfn = code.indexOf('await ') === -1 ? new Function('$', 'repo', body) : new AsyncFunction('$', 'repo', body);\n\n\t\t\t\t\tif (config.clear)\n\t\t\t\t\t\trepo = {};\n\n\t\t\t\t} else\n\t\t\t\t\tfn = null;\n\n\t\t\t\tinstance.status(EMPTYOBJECT);\n\t\t\t} catch (e) {\n\t\t\t\tfn = null;\n\t\t\t\tinstance.status({ error: e.message });\n\t\t\t}\n\t\t};\n\n\t\tinstance.close = function() {\n\t\t\tfn = null;\n\t\t\trepo = null;\n\t\t};\n\n\t\tinstance.configure();\n\n\t};\n\n</script>\n\n<readme>\nThe component simulates Total.js Schema Workflow operation. It can process data and store/read them into the database.\n\n__Properties__:\n- `$ {Message}`\n- `controller {Object}` A controller instance\n- `user {Object}` A user instance if exists\n- `headers {Object}` Request headers\n- `query {Object}` URL query arguments\n- `params {Object}` A dynamic URL params\n- `ip {String}` IP address\n- __`repo {Object}`__ a custom persistent repository object\n\n__Model/Data__:\n\n- `$.data {Object}` a message data\n- `$.repo {Object}` a message repository\n- `$.refs {Object}` a message references\n\n__Functions__:\n- `respond(data {Object})` Responds with data\n- `success(data {Object} optional)` Response with success object\n- `invalid(error {String})` Error handling`\n- `done(respond_value {Boolean/Object} optional)` return `function(err, response)` for handling callbacks\n\t- when it `fails` it calls `invalid()`\n\t- when it `done` it calls `success()`\n</readme>\n\n<settings>\n\t<div class=\"padding\">\n\t\t<div data---=\"input__?.name__required:1\" class=\"m\">Workflow name</div>\n\t\t<div data---=\"input__?.clear__type:checkbox\" class=\"m b\">Clear repository object</div>\n\t\t<div class=\"ui-input-label\">Code:</div>\n\t\t<div data---=\"codemirror__?.code__type:javascript;minheight:300;parent:auto;margin:175;tabs:true;trim:true\"></div>\n\t</div>\n</settings>\n\n<body>\n\t<header>\n\t\t<i class=\"ICON\"></i>NAME: <b data-bind=\"CONFIG.name__text\"></b>\n\t</header>\n\t<footer data-bind=\"STATUS.error__text span__show\" style=\"padding:10px\" class=\"fs12 red\"><i class=\"fa fa-bug mr5\"></i><b>ERROR:</b> <span></span></footer>\n</body>"
-    },
-    "design": {
-        "il2yjkl08": {
-            "id": "il2yjkl08",
-            "config": {
-                "url": "/",
-                "method": "GET",
-                "timeout": 5000,
-                "limit": 5120,
-                "upload": false,
-                "send": "all"
-            },
-            "x": 246,
-            "y": 185,
-            "component": "ckg5qd4c5b",
-            "connections": {
-                "output": [
-                    {
-                        "id": "il2yjkm9i",
-                        "index": "input"
-                    }
-                ]
-            },
-            "template": {
-                "icon": "fa fa-road",
-                "group": "REST API",
-                "name": "Route",
-                "outputs": [
-                    {
-                        "id": "output",
-                        "name": "Output"
-                    }
-                ]
-            }
-        },
-        "il2yjkm9i": {
-            "id": "il2yjkm9i",
-            "config": {
-                "name": "Output",
-                "code": "success(new Date());",
-                "clear": false
-            },
-            "x": 595,
-            "y": 256,
-            "component": "ckiqc0267",
-            "connections": {
-                "output": [
-                    {
-                        "id": "il2yjkn0g",
-                        "index": "input"
-                    }
-                ]
-            },
-            "template": {
-                "icon": "fa fa-code",
-                "group": "REST API",
-                "name": "Workflow",
-                "inputs": [
-                    {
-                        "id": "input",
-                        "name": "Input"
-                    }
-                ],
-                "outputs": [
-                    {
-                        "id": "output",
-                        "name": "Output"
-                    },
-                    {
-                        "id": "error",
-                        "name": "Error"
-                    }
-                ]
-            }
-        },
-        "il2yjkn0g": {
-            "id": "il2yjkn0g",
-            "config": {
-                "type": "json",
-                "code": 200
-            },
-            "x": 911,
-            "y": 302,
-            "component": "ckgtz87cdf",
-            "connections": {},
-            "template": {
-                "icon": "fa fa-retweet",
-                "group": "REST API",
-                "name": "Response",
-                "inputs": [
-                    {
-                        "id": "input",
-                        "name": "Response"
-                    }
-                ]
-            }
-        }
-    },
-    "variables": {},
-    "sources": {},
-    "proxypath": "/api1/",
-    "origin": "https://newflow.totaljs.com",
-    "dtcreated": "2022-05-09T09:47:17.742Z",
-    "size": 11573
+	"variables": {},
+	"demoflow": {
+		"paused": false,
+		"id": "demoflow",
+		"reference": "",
+		"author": "",
+		"group": "",
+		"icon": "ti ti-microchip",
+		"color": "",
+		"version": "",
+		"readme": "",
+		"url": "https://",
+		"name": "TEST",
+		"components": {
+			"c3w9271d9c": "<script total>\n\n\texports.name = 'Timer';\n\texports.group = 'Triggers';\n\texports.version = '2';\n\texports.icon = 'ti ti-clock';\n\texports.author = 'Total.js';\n\texports.config = { random: true, type: 'string', data: '', interval: 5000 };\n\texports.outputs = [{ id: 'output', name: 'Output' }];\n\n\texports.make = function(instance, config) {\n\n\t\tvar interval;\n\n\t\tinstance.trigger = function() {\n\n\t\t\tvar val;\n\n\t\t\tswitch (config.type) {\n\t\t\t\tcase 'number':\n\t\t\t\t\tval = config.random ? U.random() : config.data.parseFloat();\n\t\t\t\t\tbreak;\n\t\t\t\tcase 'buffer':\n\t\t\t\t\ttry {\n\t\t\t\t\t\tval = config.random ? Buffer.from(U.random_string()) : Buffer.from(config.data, 'base64');\n\t\t\t\t\t} catch (e) {\n\t\t\t\t\t\tinstance.throw(e);\n\t\t\t\t\t}\n\t\t\t\t\tbreak;\n\t\t\t\tcase 'date':\n\t\t\t\t\tval = config.random ? NOW.add('-' + U.random(500, 10)) : config.data.parseDate();\n\t\t\t\t\tbreak;\n\t\t\t\tcase 'object':\n\t\t\t\t\ttry {\n\t\t\t\t\t\tval = config.random ? {} : (new Function('return ' + config.data))();\n\t\t\t\t\t} catch (e) {\n\t\t\t\t\t\tinstance.throw(e);\n\t\t\t\t\t}\n\t\t\t\t\tbreak;\n\t\t\t\tcase 'boolean':\n\t\t\t\t\tval = config.random ? U.random() % 2 === 0 : config.data === 'true' || config.data === 'on' || config.data === '1';\n\t\t\t\t\tbreak;\n\t\t\t\tdefault:\n\t\t\t\t\tval = config.random ? U.random_string(20) : config.data;\n\t\t\t\t\tbreak;\n\t\t\t}\n\n\t\t\tinstance.send('output', val);\n\t\t};\n\n\t\tinstance.configure = function() {\n\t\t\tinterval && clearInterval(interval);\n\t\t\tinterval = null;\n\t\t\tif (config.interval)\n\t\t\t\tinterval = setInterval(() => instance.trigger(), config.interval);\n\t\t};\n\n\t\tinstance.close = function() {\n\t\t\tinterval && clearInterval(interval);\n\t\t\tinterval = null;\n\t\t};\n\n\t\tinstance.configure();\n\t};\n\n</script>\n\n<script>\n\tFUNC.ftimer_exec = function(el) {\n\t\tSETTER('websocket/send', { TYPE: 'trigger', id: el.attrd2('id') });\n\t};\n</script>\n\n<style>\n\t.CLASS .padding { padding: 0 10px 10px; }\n\t.CLASS button { width: 100%; height: 24px; border: 1px solid #E0E0E0; border-radius: var(--radius); color: #000; background-color: #F0F0F0; margin: 0; }\n\t.CLASS button:hover { background-color: #F8F8F8; }\n\t.CLASS button:active { background-color: #E0E0E0; }\n\t.ui-dark .CLASS button { border-color: #404040; color: #FFF; background-color: #222; }\n\t.ui-dark .CLASS button:hover { background-color: #303030; }\n\t.ui-dark .CLASS button:active { background-color: #404040; }\n</style>\n\n<settings>\n\t<div class=\"padding\">\n\t\t<div class=\"row\">\n\t\t\t<div class=\"col-md-3 m\">\n\t\t\t\t<ui-component name=\"input\" path=\"?.interval\" config=\"type:number;required:1\">Interval</ui-component>\n\t\t\t\t<div class=\"help\">In milliseconds</div>\n\t\t\t</div>\n\t\t\t<div class=\"col-md-9 m\">\n\t\t\t\t<ui-component name=\"input\" path=\"?.type\" config=\"dirsource:string|String,number|Number,boolean|Boolean,date|Date,object|Object,buffer|Buffer as Base64;required:1\">Type</ui-component>\n\t\t\t</div>\n\t\t</div>\n\t\t<hr />\n\t\t<div class=\"m\">\n\t\t\t<ui-component name=\"input\" path=\"?.random\" config=\"type:checkbox\">Random data</ui-component>\n\t\t</div>\n\t\t<ui-bind path=\"?.random\" config=\"hide\" class=\"hidden block\">\n\t\t\t<hr />\n\t\t\t<ui-component name=\"input\" path=\"?.data\" config=\"required:1\">Data</ui-component>\n\t\t</ui-bind>\n\t</div>\n</settings>\n\n<readme>\nThe component triggers data into the Flow in the specified interval.\n</readme>\n\n<body>\n\t<header>\n\t\t<i class=\"ICON\"></i>NAME\n\t</header>\n\t<div class=\"padding\">\n\t\t<button class=\"exec\" data-exec=\"FUNC.ftimer_exec\">Run</button>\n\t\t<div class=\"help\">Interval: <ui-bind path=\"CONFIG.interval\" config=\"text;empty\"></ui-bind> ms</div>\n\t</div>\n</body>",
+			"transformer": "<script total>\n\n\texports.id = 'transformer';\n\texports.name = 'Transformer';\n\texports.icon = 'ti ti-pulse';\n\texports.author = 'Total.js';\n\texports.version = '1';\n\texports.group = 'Common';\n\texports.config = { code: 'data.name = data.name.toUpperCase()', clear: false };\n\texports.inputs = [{ id: 'input', name: 'Input' }];\n\texports.outputs = [{ id: 'output', name: 'Output' }];\n\n\texports.make = function(instance, config) {\n\n\t\tvar repo = {};\n\t\tvar fn;\n\n\t\tinstance.message = function($) {\n\t\t\tvar data = $.data;\n\t\t\tif (fn) {\n\t\t\t\ttry {\n\t\t\t\t\tvar val = fn(data, repo, $.refs);\n\t\t\t\t\tif (val != null)\n\t\t\t\t\t\tdata = val;\n\t\t\t\t} catch (e) {\n\t\t\t\t\t$.destroy();\n\t\t\t\t\tinstance.throw(e);\n\t\t\t\t\treturn;\n\t\t\t\t}\n\t\t\t}\n\t\t\t$.send('output', data);\n\t\t};\n\n\t\tinstance.configure = function() {\n\t\t\ttry {\n\t\t\t\tif (config.code)\n\t\t\t\t\tfn = new Function('data', 'repo', 'refs', config.code + ';return data;');\n\t\t\t\telse\n\t\t\t\t\tfn = null;\n\t\t\t\tif (config.clear)\n\t\t\t\t\trepo = {};\n\t\t\t} catch (e) {\n\t\t\t\tinstance.throw(e);\n\t\t\t}\n\n\t\t};\n\n\t\tinstance.configure();\n\n\t};\n\n</script>\n\n<readme>\nWith this component you can easily modify incoming data. Then the `data` content is delivered.\n\n__Example 1__:\n\n```js\n// \"data\" is a reference to message data\ndata.name = data.name.toUpperCase();\n```\n\n__Example 2__:\n\n```js\ndata = data.toUpperCase();\n```\n\n__Example 3__:\n\n```js\nvar tmp = data;\ndata = {};\ndata.name = tmp.Name;\n```\n</readme>\n\n<settings>\n\t<div class=\"padding\">\n\t\t<ui-component name=\"codemirror\" path=\"?.code\" config=\"type:javascript;minheight:300;parent:auto;margin:85;tabs:true;trim:true\" class=\"m\"></ui-component>\n\t\t<ui-component name=\"input\" path=\"?.clear\" config=\"type:checkbox\">Clear repository object</ui-component>\n\t</div>\n</settings>\n\n<body>\n\t<header>\n\t\t<i class=\"ICON\"></i>NAME\n\t</header>\n</body>"
+		},
+		"design": {
+			"ilhck442x": {
+				"id": "ilhck442x",
+				"config": {
+					"random": false,
+					"type": "object",
+					"data": "new Date()",
+					"interval": 1000
+				},
+				"x": 326,
+				"y": 229,
+				"component": "c3w9271d9c",
+				"connections": {
+					"output": [
+						{
+							"id": "ilhck4zhn",
+							"index": "input"
+						}
+					]
+				},
+				"template": {
+					"icon": "ti ti-clock",
+					"group": "Triggers",
+					"name": "Timer",
+					"outputs": [
+						{
+							"id": "output",
+							"name": "Output"
+						}
+					]
+				}
+			},
+			"ilhck4zhn": {
+				"id": "ilhck4zhn",
+				"config": {
+					"code": "console.log('Loaded from Flow:', data);",
+					"clear": false
+				},
+				"x": 628,
+				"y": 431,
+				"component": "transformer",
+				"connections": {},
+				"template": {
+					"icon": "ti ti-pulse",
+					"group": "Common",
+					"name": "Transformer",
+					"inputs": [
+						{
+							"id": "input",
+							"name": "Input"
+						}
+					],
+					"outputs": [
+						{
+							"id": "output",
+							"name": "Output"
+						}
+					]
+				}
+			}
+		},
+		"variables": {},
+		"sources": {},
+		"proxypath": "",
+		"origin": "http://127.0.0.1:8000",
+		"dtcreated": "2023-05-06T22:27:53.182Z",
+		"size": 6947
+	}
 }
