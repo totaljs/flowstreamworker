@@ -76,7 +76,14 @@ function load() {
 			return;
 
 		var db = data.parseJSON(true);
-		var variables = FS.db.variables || {};
+
+		if (db.id) {
+			var tmp = db;
+			db = {};
+			db[tmp.id] = tmp;
+		}
+
+		var variables = db.variables || {};
 
 		Object.keys(db).wait(function(key, next) {
 			if (key === 'variables')
