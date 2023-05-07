@@ -61,6 +61,10 @@ FUNC.restart = function() {
 
 	for (var key in FS.instances) {
 		var instance = FS.instances[key];
+
+		if (instance.proxypath)
+			PROXY(instance.proxypath, null);
+
 		instance.destroy();
 		is = true;
 	}
