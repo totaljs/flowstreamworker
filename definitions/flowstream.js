@@ -29,6 +29,7 @@ FS.init = function(flow, variables, next) {
 			PROXY(flow.proxypath, flow.unixsocket, false);
 		}
 
+		instance.proxypath = flow.proxypath;
 		instance.httprouting();
 		instance.ondone = () => next();
 		instance.onerror = function(err, source, id, component, stack) {
