@@ -70,9 +70,12 @@ FUNC.restart = function() {
 };
 
 function load() {
-	PATH.fs.readFile(PATH.root(CONF.flowstream_file), function(err, data) {
+	PATH.fs.readFile(PATH.root(CONF.flowstream_file), 'utf8', function(err, data) {
 
-		var db = data.toString('utf8').parseJSON(true);
+		if (!data)
+			return;
+
+		var db = data.parseJSON(true);
 		var variables = FS.db.variables || {};
 
 		Object.keys(db).wait(function(key, next) {
