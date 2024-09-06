@@ -15,11 +15,3 @@ $ cd flowstreamworker
 $ npm install
 $ npm start
 ```
-
-__Good to know__:
-
-```js
-FUNC.restart();
-```
-
-The method destroys all FlowStreams and reloads them again from the file.

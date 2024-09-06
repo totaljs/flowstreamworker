@@ -1,3 +1,11 @@
-flowstream_worker  : fork
-flowstream_mode    : env
-flowstream_file    : /flowstream/database.json
+// Disables: Worker/Fork
+// flowstream_worker           : false
+
+// Replaces WorkerThread for the ChildProcess/Fork
+// flowstream_worker           : fork
+
+// Memory size for forked processes (in MB)
+// flowstream_memory           : 4069
+
+// Enables FlowStream backups when changing
+// backup                      : true

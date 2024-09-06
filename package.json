@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "dependencies": {
-    "total4": "latest"
+    "total5": "latest"
   },
   "scripts": {
     "start": "node index.js 8000"
